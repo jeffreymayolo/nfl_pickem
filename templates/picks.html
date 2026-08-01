@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Picks — Mayolo Family Pick 'Em{% endblock %}
+{% block content %}
+<h1>Make Your Picks</h1>
+<p style="color:#555;">Picks lock automatically once a game's kickoff time passes. You can change a pick any time before then.</p>
+
+<form method="POST" class="card">
+  {% for game in games %}
+  <div class="matchup">
+    <span class="week-tag">WK {{ game.week }}</span>
+    <label class="team-choice {{ 'selected' if my_picks.get(game.game_id) == game.team1 }}">
+      <input type="radio" name="pick_{{ game.game_id }}" value="{{ game.team1 }}"
+        {{ 'checked' if my_picks.get(game.game_id) == game.team1 }}
+        onclick="this.closest('.matchup').querySelectorAll('.team-choice').forEach(el=>el.classList.remove('selected')); this.closest('.team-choice').classList.add('selected');">
+      {{ game.team1 }}
+      <span class="odds">{{ my_points[game.game_id].team1 }}</span>
+    </label>
+    <span style="color:#999;">vs</span>
+    <label class="team-choice {{ 'selected' if my_picks.get(game.game_id) == game.team2 }}">
+      <input type="radio" name="pick_{{ game.game_id }}" value="{{ game.team2 }}"
+        {{ 'checked' if my_picks.get(game.game_id) == game.team2 }}
+        onclick="this.closest('.matchup').querySelectorAll('.team-choice').forEach(el=>el.classList.remove('selected')); this.closest('.team-choice').classList.add('selected');">
+      {{ game.team2 }}
+      <span class="odds">{{ my_points[game.game_id].team2 }}</span>
+    </label>
+  </div>
+  {% else %}
+  <p>No games open for picks right now — check back once the commissioner adds this week's games.</p>
+  {% endfor %}
+
+  {% if games %}
+  <button type="submit">Save Picks</button>
+  {% endif %}
+</form>
+{% endblock %}

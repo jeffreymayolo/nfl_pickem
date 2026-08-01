@@ -1,0 +1,29 @@
+services:
+  - type: web
+    name: mayolo-pickem
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ODDS_API_KEY
+        sync: false   # set this manually in the Render dashboard
+    disk:
+      name: pickem-data
+      mountPath: /opt/render/project/src/data
+      sizeGB: 1
+
+  # Optional: runs the Tuesday-morning odds pull automatically.
+  # Edit the --week/--games args each week, or replace with a script
+  # that reads the week's games from an admin-managed file.
+  - type: cron
+    name: fetch-odds-tuesday
+    runtime: python
+    schedule: "0 13 * * 2"   # 13:00 UTC every Tuesday (~9am ET)
+    buildCommand: pip install -r requirements.txt
+    startCommand: python scripts/fetch_odds.py --week 1 --games "Chiefs@Bills"
+    envVars:
+      - key: ODDS_API_KEY
+        sync: false
