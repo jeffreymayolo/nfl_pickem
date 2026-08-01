@@ -1,0 +1,164 @@
+@import url('https://fonts.googleapis.com/css2?family=Teko:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+:root {
+  --turf: #1B4332;
+  --turf-dark: #0F2A1E;
+  --chalk: #F7F5F0;
+  --gold: #E8A93B;
+  --leather: #6B3F2A;
+  --charcoal: #14201C;
+  --hash: #D8D3C8;
+  --danger: #B4453B;
+  --success: #3C7A5A;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--chalk);
+  color: var(--charcoal);
+  font-family: 'IBM Plex Sans', sans-serif;
+  line-height: 1.5;
+}
+
+h1, h2, h3, .display {
+  font-family: 'Teko', sans-serif;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--turf-dark);
+  margin: 0 0 0.3em;
+}
+
+h1 { font-size: 2.6rem; }
+h2 { font-size: 1.9rem; }
+
+.mono, table, .odds { font-family: 'IBM Plex Mono', monospace; }
+
+/* Scoreboard-style top bar */
+.scoreboard-nav {
+  background: var(--turf-dark);
+  color: var(--chalk);
+  padding: 0.9rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 4px solid var(--gold);
+}
+.scoreboard-nav .brand {
+  font-family: 'Teko', sans-serif;
+  font-size: 1.6rem;
+  letter-spacing: 0.04em;
+  color: var(--gold);
+  text-decoration: none;
+}
+.scoreboard-nav nav a {
+  color: var(--chalk);
+  text-decoration: none;
+  margin-left: 1.3rem;
+  font-size: 0.95rem;
+  border-bottom: 2px solid transparent;
+  padding-bottom: 2px;
+}
+.scoreboard-nav nav a:hover,
+.scoreboard-nav nav a.active { border-bottom-color: var(--gold); }
+
+.container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 4rem;
+}
+
+.card {
+  background: #fff;
+  border: 1px solid var(--hash);
+  border-radius: 6px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.field-divider {
+  height: 3px;
+  background: repeating-linear-gradient(90deg, var(--hash) 0 16px, transparent 16px 28px);
+  margin: 1.5rem 0;
+}
+
+/* Forms */
+label { display: block; font-weight: 500; margin: 0.9rem 0 0.3rem; font-size: 0.9rem; }
+input[type=text], input[type=password], input[type=number], input[type=datetime-local], select {
+  width: 100%;
+  padding: 0.6rem 0.7rem;
+  border: 1px solid var(--hash);
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: 1rem;
+}
+button, .btn {
+  background: var(--gold);
+  color: var(--turf-dark);
+  border: none;
+  padding: 0.65rem 1.4rem;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-top: 1rem;
+  display: inline-block;
+  text-decoration: none;
+}
+button:hover, .btn:hover { background: #d69a2c; }
+.btn-secondary { background: var(--hash); color: var(--charcoal); }
+
+.flash { padding: 0.7rem 1rem; border-radius: 4px; margin-bottom: 1rem; font-size: 0.95rem; }
+.flash.error { background: #f7dedb; color: var(--danger); border: 1px solid var(--danger); }
+.flash.success { background: #dcece2; color: var(--success); border: 1px solid var(--success); }
+
+/* Standings table */
+table { width: 100%; border-collapse: collapse; margin-top: 0.5rem; }
+th, td { text-align: left; padding: 0.6rem 0.7rem; border-bottom: 1px solid var(--hash); font-size: 0.92rem; }
+th { color: var(--turf-dark); font-weight: 600; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.05em; }
+tr:first-child td { font-weight: 600; }
+.rank-badge {
+  display: inline-block;
+  background: var(--turf);
+  color: var(--gold);
+  font-family: 'Teko', sans-serif;
+  font-size: 1.1rem;
+  width: 1.8rem;
+  height: 1.8rem;
+  text-align: center;
+  line-height: 1.8rem;
+  border-radius: 3px;
+}
+.positive { color: var(--success); }
+.negative { color: var(--danger); }
+
+/* Picks page */
+.matchup {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.9rem 0;
+  border-bottom: 1px solid var(--hash);
+}
+.matchup .week-tag {
+  font-family: 'Teko', sans-serif;
+  background: var(--turf);
+  color: var(--gold);
+  padding: 0.15rem 0.6rem;
+  border-radius: 3px;
+  font-size: 1rem;
+}
+.team-choice {
+  flex: 1;
+  padding: 0.6rem;
+  border: 2px solid var(--hash);
+  border-radius: 4px;
+  cursor: pointer;
+  text-align: center;
+}
+.team-choice input { display: none; }
+.team-choice.selected { border-color: var(--gold); background: #fdf3e2; }
+.team-choice .odds { display: block; font-size: 0.8rem; color: #6a6a6a; margin-top: 0.15rem; }
+
+#chart-wrap { background: #fff; border: 1px solid var(--hash); border-radius: 6px; padding: 1rem; }

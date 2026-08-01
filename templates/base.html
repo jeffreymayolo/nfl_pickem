@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Mayolo Family Pick 'Em{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="scoreboard-nav">
+    <a class="brand" href="{{ url_for('index') }}">MAYOLO FAMILY PICK 'EM</a>
+    {% if current_user.is_authenticated %}
+    <nav>
+      <a href="{{ url_for('standings') }}" class="{{ 'active' if request.endpoint == 'standings' }}">Standings</a>
+      <a href="{{ url_for('picks') }}" class="{{ 'active' if request.endpoint == 'picks' }}">Picks</a>
+      {% if current_user.is_commissioner %}
+      <a href="{{ url_for('admin') }}" class="{{ 'active' if request.endpoint == 'admin' }}">Admin</a>
+      {% endif %}
+      <a href="{{ url_for('logout') }}">Log out</a>
+    </nav>
+    {% endif %}
+  </div>
+
+  <div class="container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="flash {{ category }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+  </div>
+</body>
+</html>

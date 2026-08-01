@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}Admin — Mayolo Family Pick 'Em{% endblock %}
+{% block content %}
+<h1>Commissioner Admin</h1>
+
+<div class="card">
+  <h2>Add a Game</h2>
+  <p style="color:#555; font-size:0.9rem;">
+    Odds and probabilities are normally filled in automatically by the Tuesday
+    odds pull (<code>scripts/fetch_odds.py</code>). You can also add or override
+    a game here — e.g. for the one bonus game you're picking manually this week.
+  </p>
+  <form method="POST">
+    <input type="hidden" name="action" value="add_game">
+    <label for="game_id">Game ID</label>
+    <input type="text" id="game_id" name="game_id" placeholder="w5_Bills_Chiefs" required>
+    <label for="week">Week</label>
+    <input type="text" id="week" name="week" required>
+    <label for="team1">Team 1</label>
+    <input type="text" id="team1" name="team1" required>
+    <label for="team1_odds">Team 1 Odds (American)</label>
+    <input type="number" id="team1_odds" name="team1_odds" placeholder="-150" required>
+    <label for="team2">Team 2</label>
+    <input type="text" id="team2" name="team2" required>
+    <label for="team2_odds">Team 2 Odds (American)</label>
+    <input type="number" id="team2_odds" name="team2_odds" placeholder="+130" required>
+    <label for="kickoff_time">Kickoff Time (UTC ISO, e.g. 2026-09-08T00:20:00)</label>
+    <input type="datetime-local" id="kickoff_time" name="kickoff_time">
+    <button type="submit">Add Game</button>
+  </form>
+</div>
+
+<div class="field-divider"></div>
+
+<div class="card">
+  <h2>Record Winners</h2>
+  <table>
+    <thead><tr><th>Week</th><th>Game</th><th>Odds</th><th>Winner</th></tr></thead>
+    <tbody>
+    {% for g in games %}
+      <tr>
+        <td class="mono">{{ g.week }}</td>
+        <td>{{ g.team1 }} vs {{ g.team2 }}</td>
+        <td class="mono">{{ g.team1_odds }} / {{ g.team2_odds }}</td>
+        <td>
+          {% if g.winner %}
+            <strong>{{ g.winner }}</strong>
+          {% else %}
+          <form method="POST" style="display:flex; gap:0.4rem; margin:0;">
+            <input type="hidden" name="action" value="set_winner">
+            <input type="hidden" name="game_id" value="{{ g.game_id }}">
+            <select name="winner" required>
+              <option value="">Select winner…</option>
+              <option value="{{ g.team1 }}">{{ g.team1 }}</option>
+              <option value="{{ g.team2 }}">{{ g.team2 }}</option>
+            </select>
+            <button type="submit" style="margin-top:0; padding:0.4rem 0.8rem;">Save</button>
+          </form>
+          {% endif %}
+        </td>
+      </tr>
+    {% else %}
+      <tr><td colspan="4">No games added yet.</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

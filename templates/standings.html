@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block title %}Standings — Mayolo Family Pick 'Em{% endblock %}
+{% block content %}
+<h1>Standings</h1>
+
+<div id="chart-wrap">
+  <canvas id="pointsChart" height="110"></canvas>
+</div>
+
+<div class="field-divider"></div>
+
+<div class="card">
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Player</th>
+        <th>Points</th>
+        <th>% Correct</th>
+        <th>Perfect Weeks</th>
+        <th>Zero-Win Weeks</th>
+        <th>$20/Game Net</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for r in results %}
+      <tr>
+        <td><span class="rank-badge">{{ loop.index }}</span></td>
+        <td>{{ r.username }}</td>
+        <td class="mono">{{ r.points }}</td>
+        <td class="mono">{{ r.percent_correct }}%</td>
+        <td class="mono">{{ r.perfect_weeks }}</td>
+        <td class="mono">{{ r.zero_win_weeks }}</td>
+        <td class="mono {{ 'positive' if r.dollar_net >= 0 else 'negative' }}">
+          {{ "+" if r.dollar_net >= 0 else "" }}${{ "%.2f"|format(r.dollar_net) }}
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="7">No graded games yet — standings will populate once the commissioner records winners.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<script>
+  const gameOrder = {{ game_order | tojson }};
+  const series = {{ series | tojson }};
+  const colors = ["#E8A93B", "#1B4332", "#6B3F2A", "#3C7A5A", "#B4453B", "#4A6FA5", "#8E6C88", "#C97B3D"];
+
+  const datasets = Object.keys(series).map((username, i) => {
+    const byGame = {};
+    series[username].forEach(pt => { byGame[pt.game_id] = pt.cumulative_points; });
+    let last = 0;
+    const data = gameOrder.map(gid => {
+      if (gid in byGame) { last = byGame[gid]; }
+      return last;
+    });
+    return {
+      label: username,
+      data: data,
+      borderColor: colors[i % colors.length],
+      backgroundColor: colors[i % colors.length],
+      tension: 0.2,
+      borderWidth: 2,
+      pointRadius: 3,
+    };
+  });
+
+  new Chart(document.getElementById('pointsChart'), {
+    type: 'line',
+    data: { labels: gameOrder, datasets: datasets },
+    options: {
+      responsive: true,
+      interaction: { mode: 'nearest', intersect: false },
+      scales: {
+        x: { title: { display: true, text: 'Game' }, ticks: { display: false }},
+        y: { title: { display: true, text: 'Cumulative Points' } },
+      },
+    },
+  });
+</script>
+{% endblock %}
