@@ -161,4 +161,69 @@ tr:first-child td { font-weight: 600; }
 .team-choice.selected { border-color: var(--gold); background: #fdf3e2; }
 .team-choice .odds { display: block; font-size: 0.8rem; color: #6a6a6a; margin-top: 0.15rem; }
 
-#chart-wrap { background: #fff; border: 1px solid var(--hash); border-radius: 6px; padding: 1rem; }
+#chart-wrap { position: relative; height: 220px; }
+.chart-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 0.9rem;
+  justify-content: center;
+  margin-top: 0.8rem;
+  padding-top: 0.8rem;
+  border-top: 1px solid var(--hash);
+}
+.legend-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.82rem;
+  cursor: pointer;
+  user-select: none;
+  padding: 0.15rem 0.1rem;
+}
+.legend-chip-off { opacity: 0.4; text-decoration: line-through; }
+.legend-dot { width: 0.7rem; height: 0.7rem; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+
+.table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+/* Mobile: collapse the standings table into stacked cards instead of a
+   wide table that requires horizontal scrolling to read. */
+@media (max-width: 700px) {
+  #chart-wrap { height: 240px; }
+
+  table.standings thead { display: none; }
+  table.standings, table.standings tbody { display: block; width: 100%; }
+  table.standings tr {
+    display: flex;
+    flex-wrap: wrap;
+    border: 1px solid var(--hash);
+    border-radius: 6px;
+    padding: 0.7rem 0.9rem 0.5rem;
+    margin-bottom: 0.7rem;
+  }
+  table.standings td { border-bottom: none; padding: 0; font-size: 0.88rem; }
+  table.standings td.card-header {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: 1.05rem;
+    font-weight: 600;
+    padding-bottom: 0.6rem;
+    margin-bottom: 0.4rem;
+    border-bottom: 1px solid var(--hash);
+  }
+  table.standings td.stat-cell {
+    flex: 1 1 50%;
+    display: flex;
+    justify-content: space-between;
+    padding: 0.3rem 0.4rem 0.3rem 0;
+  }
+  table.standings td.stat-cell::before {
+    content: attr(data-label);
+    font-weight: 600;
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--turf-dark);
+  }
+}

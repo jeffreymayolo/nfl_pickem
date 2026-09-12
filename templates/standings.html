@@ -3,43 +3,49 @@
 {% block content %}
 <h1>Standings</h1>
 
-<div id="chart-wrap">
-  <canvas id="pointsChart" height="110"></canvas>
+<div class="card">
+  <div id="chart-wrap">
+    <canvas id="pointsChart"></canvas>
+  </div>
+  <div id="pointsLegend" class="chart-legend"></div>
 </div>
 
 <div class="field-divider"></div>
 
 <div class="card">
-  <table>
-    <thead>
-      <tr>
-        <th>#</th>
-        <th>Player</th>
-        <th>Points</th>
-        <th>% Correct</th>
-        <th>Perfect Weeks</th>
-        <th>Zero-Win Weeks</th>
-        <th>$20/Game Net</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for r in results %}
-      <tr>
-        <td><span class="rank-badge">{{ loop.index }}</span></td>
-        <td>{{ r.username }}</td>
-        <td class="mono">{{ r.points }}</td>
-        <td class="mono">{{ r.percent_correct }}%</td>
-        <td class="mono">{{ r.perfect_weeks }}</td>
-        <td class="mono">{{ r.zero_win_weeks }}</td>
-        <td class="mono {{ 'positive' if r.dollar_net >= 0 else 'negative' }}">
-          {{ "+" if r.dollar_net >= 0 else "" }}${{ "%.2f"|format(r.dollar_net) }}
-        </td>
-      </tr>
-      {% else %}
-      <tr><td colspan="7">No graded games yet — standings will populate once the commissioner records winners.</td></tr>
-      {% endfor %}
-    </tbody>
-  </table>
+  <div class="table-scroll">
+    <table class="standings">
+      <thead>
+        <tr>
+          <th>Player</th>
+          <th>Points</th>
+          <th>% Correct</th>
+          <th>Perfect Wks</th>
+          <th>Zero-Win Wks</th>
+          <th>$20 Net</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in results %}
+        <tr>
+          <td class="card-header">
+            <span class="rank-badge">{{ loop.index }}</span>
+            <span>{{ r.username }}</span>
+          </td>
+          <td class="stat-cell mono" data-label="Points">{{ r.points }}</td>
+          <td class="stat-cell mono" data-label="% Correct">{{ r.percent_correct }}%</td>
+          <td class="stat-cell mono" data-label="Perfect Wks">{{ r.perfect_weeks }}</td>
+          <td class="stat-cell mono" data-label="Zero-Win Wks">{{ r.zero_win_weeks }}</td>
+          <td class="stat-cell mono {{ 'positive' if r.dollar_net >= 0 else 'negative' }}" data-label="$20 Net">
+            {{ "+" if r.dollar_net >= 0 else "" }}${{ "%.2f"|format(r.dollar_net) }}
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="6">No graded games yet — standings will populate once the commissioner records winners.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 </div>
 
 <div class="field-divider"></div>
@@ -52,7 +58,9 @@
     their own deadline.
   </p>
   {% if pick_distribution %}
-  <canvas id="picksChart" height="{{ (pick_distribution | length) * 12 + 6 }}"></canvas>
+  <div class="table-scroll">
+    <canvas id="picksChart" height="{{ (pick_distribution | length) * 12 + 6 }}"></canvas>
+  </div>
   {% else %}
   <p>No games are currently locked-but-ungraded.</p>
   {% endif %}
@@ -83,17 +91,35 @@
     };
   });
 
-  new Chart(document.getElementById('pointsChart'), {
+  const pointsChart = new Chart(document.getElementById('pointsChart'), {
     type: 'line',
     data: { labels: gameOrder, datasets: datasets },
     options: {
       responsive: true,
+      maintainAspectRatio: false,
       interaction: { mode: 'nearest', intersect: false },
+      plugins: { legend: { display: false } },
       scales: {
-        x: { title: { display: true, text: 'Game' } },
+        x: { title: { display: true, text: 'Game' }, ticks: { display: false } },
         y: { title: { display: true, text: 'Cumulative Points' } },
       },
     },
+  });
+
+  // Custom legend: wraps naturally on narrow screens (Chart.js's built-in
+  // legend doesn't), and doubles as a click-to-toggle control.
+  const legendEl = document.getElementById('pointsLegend');
+  pointsChart.data.datasets.forEach((ds, i) => {
+    const chip = document.createElement('span');
+    chip.className = 'legend-chip';
+    chip.innerHTML = `<span class="legend-dot" style="background:${ds.borderColor}"></span>${ds.label}`;
+    chip.addEventListener('click', () => {
+      const meta = pointsChart.getDatasetMeta(i);
+      meta.hidden = meta.hidden === null ? !pointsChart.data.datasets[i].hidden : !meta.hidden;
+      chip.classList.toggle('legend-chip-off', !!meta.hidden);
+      pointsChart.update();
+    });
+    legendEl.appendChild(chip);
   });
 
   const pickDist = {{ pick_distribution | tojson }};
