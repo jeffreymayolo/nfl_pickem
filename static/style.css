@@ -161,7 +161,7 @@ tr:first-child td { font-weight: 600; }
 .team-choice.selected { border-color: var(--gold); background: #fdf3e2; }
 .team-choice .odds { display: block; font-size: 0.8rem; color: #6a6a6a; margin-top: 0.15rem; }
 
-#chart-wrap { position: relative; height: 220px; }
+#chart-wrap { position: relative; height: 420px; }
 .chart-legend {
   display: flex;
   flex-wrap: wrap;

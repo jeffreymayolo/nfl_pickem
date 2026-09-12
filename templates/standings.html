@@ -22,7 +22,6 @@
           <th>% Correct</th>
           <th>Perfect Wks</th>
           <th>Zero-Win Wks</th>
-          <th>$20 Net</th>
         </tr>
       </thead>
       <tbody>
@@ -36,8 +35,6 @@
           <td class="stat-cell mono" data-label="% Correct">{{ r.percent_correct }}%</td>
           <td class="stat-cell mono" data-label="Perfect Wks">{{ r.perfect_weeks }}</td>
           <td class="stat-cell mono" data-label="Zero-Win Wks">{{ r.zero_win_weeks }}</td>
-          <td class="stat-cell mono {{ 'positive' if r.dollar_net >= 0 else 'negative' }}" data-label="$20 Net">
-            {{ "+" if r.dollar_net >= 0 else "" }}${{ "%.2f"|format(r.dollar_net) }}
           </td>
         </tr>
         {% else %}
@@ -100,8 +97,15 @@
       interaction: { mode: 'nearest', intersect: false },
       plugins: { legend: { display: false } },
       scales: {
-        x: { title: { display: true, text: 'Game' }, ticks: { display: false } },
-        y: { title: { display: true, text: 'Cumulative Points' } },
+        x: {
+          title: { display: true, text: 'Game' },
+          ticks: {
+            callback: function (value, index) {
+              return index;
+            },
+          },
+        },
+        y: { title: { display: true, text: 'Points' }, beginAtZero: true },
       },
     },
   });

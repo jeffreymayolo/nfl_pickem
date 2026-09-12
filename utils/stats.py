@@ -65,7 +65,8 @@ def compute_standings():
                     total_dollars += payout_on_20(picked_odds)
                     correct_count += 1
                 else:
-                    total_dollars -= 20
+                    # total_dollars -= 20
+                    pass
 
             cumulative.append({"game_id": game_id, "cumulative_points": round(total_points, 2)})
 
@@ -93,7 +94,7 @@ def compute_standings():
             "percent_correct": pct_correct,
             "perfect_weeks": perfect_weeks,
             "zero_win_weeks": zero_win_weeks,
-            "dollar_net": round(total_dollars, 2),
+            # "dollar_net": round(total_dollars, 2),
             "games_picked": picked_count,
         })
         series[username] = cumulative
