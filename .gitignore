@@ -3,3 +3,5 @@ data/*
 config.yml
 data_backup/*
 .api_key.txt
+.venv/
+utils/__pychache__/

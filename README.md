@@ -25,46 +25,9 @@ pip install -r requirements.txt
 python app.py
 ```
 
-Visit http://localhost:5001 — register the first account (that becomes the
+Visit http://localhost:8000 — register the first account (that becomes the
 commissioner), then add a game from the Admin page to try it out.
 
-## Pulling odds automatically
-
-1. Get a free API key at https://the-odds-api.com (free tier = 500 requests/month;
-   one pull per week costs 1 request).
-2. Set it as an environment variable: `export ODDS_API_KEY=your_key_here`
-3. Run the weekly pull, naming games as `Away@Home`:
-
-```bash
-python scripts/fetch_odds.py --week 5 --games "Chiefs@Bills" "Cowboys@Eagles"
-```
-
-This writes/updates rows in `data/games.csv` with the averaged moneyline odds
-across books and the resulting implied win probabilities. Team-name matching
-is a loose substring match (e.g. "Chiefs" matches "Kansas City Chiefs"), so
-short nicknames work fine.
-
-## Deploying to Render
-
-`render.yaml` is included and defines two services:
-
-1. **mayolo-pickem** — the web app itself (free plan, gunicorn).
-2. **fetch-odds-tuesday** — an optional cron job that runs the odds pull every
-   Tuesday at 9am ET. You'll need to edit the `--week`/`--games` args in
-   `render.yaml` each week (or point it at a small wrapper script that reads
-   the week's games from a file the commissioner maintains).
-
-Steps:
-1. Push this project to a GitHub repo.
-2. In Render, choose "New > Blueprint" and point it at the repo — it will
-   read `render.yaml` and set up both services.
-3. Set the `ODDS_API_KEY` environment variable on both services in the Render
-   dashboard (it's marked `sync: false` so it's not stored in the repo).
-4. Note: Render's **free** plan does not support persistent disks, so
-   `data/` will reset on redeploy on the free tier. If you want the CSVs to
-   survive redeploys, upgrade the web service to a paid plan (enables the
-   `disk:` block already in `render.yaml`), or swap in Render's free
-   PostgreSQL/S3-compatible storage down the line.
 
 ## Data files
 
@@ -83,22 +46,28 @@ submissions right before kickoff can't corrupt a file.
   points for a correct pick = `100 * (1 - normalized_probability)`. A big
   favorite is worth few points; a big underdog is worth a lot.
 
-- **20/game net**: uses the *actual* American odds (not normalized) of the
-  team you picked — a win pays out what a real 20 bet would at those odds; a
-  loss costs 20. This can rank differently than the points column, since
-  points reward beating the odds while the dollar column pays out more for
-  underdog wins regardless of how big the upset was.
 
-  ## starting
-  Start the service
-  ```
-  python3 app.py
-  ```
+## starting
+Start the service
+```
+python3 app.py
+```
 
-  Connect to Cloudflare tunnel
-  ```
-  cloudflared tunnel run pickem
-  ```
+Connect to Cloudflare tunnel
+```
+cloudflared tunnel run pickem
+```
+
+## Pulling odds automatically
+
+1. Get a free API key at https://the-odds-api.com (free tier = 500 requests/month;
+   one pull per week costs 1 request).
+2. Set it as an environment variable: `export ODDS_API_KEY=your_key_here`
+3. Run the weekly pull, naming games as `Away@Home`:
+
+```bash
+python scripts/fetch_odds.py --week 5 --games "Chiefs@Bills" "Cowboys@Eagles"
+```
 
   ## TODO
   - Switch hosting to gunicorn.
@@ -106,5 +75,6 @@ submissions right before kickoff can't corrupt a file.
   - Once a game starts, display a pie chart for who chose what team.
   - Make it nore viewable on phone since that is the primary source for viewing
   - Get rid of $20/game.
+  - Get it running on Nina's laptop
 
 
