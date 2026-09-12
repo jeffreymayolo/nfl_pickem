@@ -11,6 +11,9 @@ week" means they picked at least one graded game that week and got none
 right.
 """
 from collections import defaultdict
+# import pandas as pd
+# import seaborn as sns
+# import matplotlib.pyplot as plt
 
 from utils.csv_store import GAMES_CSV, USERS_CSV, read_csv, picks_csv_path
 from utils.games import kickoff_passed
@@ -23,6 +26,19 @@ def _graded_games():
     graded = [g for g in games if g.get("winner")]
     graded.sort(key=lambda g: g["game_id"])
     return graded
+
+# def create_standings_plot(series):
+#     """
+#     Function to create a standgins plot using seaborn and matplotlib
+#     """
+#     unsernames = list(series.keys())
+#     user_scores = {username: [entry["cumulative_points"] for entry in series[username]] for username in unsernames}
+#     sns.lineplot(data=pd.DataFrame(user_scores))
+#     sns.set_theme(style="whitegrid")
+#     plt.xlabel("Game ID")
+#     plt.ylabel("Total Points")
+#     plt.title("Total Points by Game ID")
+#     plt.savefig("static/standings_plot.png")
 
 
 def compute_standings():
@@ -100,6 +116,7 @@ def compute_standings():
         series[username] = cumulative
 
     # Sort by points desc, tiebreak by percent correct desc (per league rules)
+    # create_standings_plot(series)
     results.sort(key=lambda r: (-r["points"], -r["percent_correct"]))
     return results, series, game_order
 
@@ -135,3 +152,4 @@ def compute_pick_distribution():
             "team2_pickers": team2_pickers,
         })
     return distribution
+
