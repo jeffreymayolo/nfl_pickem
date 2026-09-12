@@ -1,2 +1,0 @@
-username,password_hash,is_commissioner
-jeffrey,scrypt:32768:8:1$0wcFlAe6FsKQJmNS$76699156120be53ab1860aea253cb00d86c70db695e45859cc5b7128882ba8260b822f845d1952bf439cac16e8dcbb41bef9d218e00f09dfe10f719d45834de6,true
