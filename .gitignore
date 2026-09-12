@@ -3,5 +3,6 @@ data/*
 config.yml
 data_backup/*
 .api_key.txt
+.secret_key.txt
 .venv/
-utils/__pychache__/
+utils/__pycache__/*

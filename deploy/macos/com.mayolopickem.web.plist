@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+launchd job that keeps the pick-em app running via gunicorn.
+
+BEFORE INSTALLING, replace every {{PLACEHOLDER}} below:
+  {{PROJECT_PATH}}  - full path to this project, e.g. /Users/jeff/pickem
+  {{VENV_PATH}}     - full path to the project's virtualenv, e.g. /Users/jeff/pickem/venv
+  {{SECRET_KEY}}    - a real random secret, e.g. output of: python3 -c "import secrets; print(secrets.token_hex(32))"
+
+INSTALL:
+  cp com.mayolopickem.web.plist ~/Library/LaunchAgents/
+  launchctl load ~/Library/LaunchAgents/com.mayolopickem.web.plist
+
+  (to reload after editing: launchctl unload then launchctl load again)
+
+LOGS:
+  tail -f {{PROJECT_PATH}}/logs/web.log
+  tail -f {{PROJECT_PATH}}/logs/web-error.log
+-->
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.mayolopickem.web</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>{{VENV_PATH}}/bin/gunicorn</string>
+        <string>--bind</string>
+        <string>127.0.0.1:8000</string>
+        <string>--workers</string>
+        <string>2</string>
+        <string>app:app</string>
+    </array>
+
+    <key>WorkingDirectory</key>
+    <string>{{PROJECT_PATH}}</string>
+
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>SECRET_KEY</key>
+        <string>{{SECRET_KEY}}</string>
+    </dict>
+
+    <key>RunAtLoad</key>
+    <true/>
+
+    <key>KeepAlive</key>
+    <true/>
+
+    <key>StandardOutPath</key>
+    <string>{{PROJECT_PATH}}/logs/web.log</string>
+
+    <key>StandardErrorPath</key>
+    <string>{{PROJECT_PATH}}/logs/web-error.log</string>
+</dict>
+</plist>

@@ -13,6 +13,7 @@ right.
 from collections import defaultdict
 
 from utils.csv_store import GAMES_CSV, USERS_CSV, read_csv, picks_csv_path
+from utils.games import kickoff_passed
 from utils.odds import normalize_pair, points_for_pick, payout_on_20
 
 
@@ -100,3 +101,36 @@ def compute_standings():
     # Sort by points desc, tiebreak by percent correct desc (per league rules)
     results.sort(key=lambda r: (-r["points"], -r["percent_correct"]))
     return results, series, game_order
+
+
+def compute_pick_distribution():
+    """
+    For each "current" game — kickoff has passed (so picks are locked and
+    safe to reveal without letting anyone copy a pick before their own
+    deadline) but no winner has been recorded yet — returns who picked
+    which team. Used for the "who picked what" chart on the standings page.
+    """
+    games = read_csv(GAMES_CSV)
+    current = [g for g in games if kickoff_passed(g) and not g.get("winner")]
+    current.sort(key=lambda g: (g.get("week", ""), g.get("kickoff_time", "")))
+
+    usernames = [u["username"] for u in read_csv(USERS_CSV)]
+    picks_by_user = {
+        u: {p["game_id"]: p["pick"] for p in read_csv(picks_csv_path(u))}
+        for u in usernames
+    }
+
+    distribution = []
+    for game in current:
+        gid = game["game_id"]
+        team1_pickers = [u for u in usernames if picks_by_user[u].get(gid) == game["team1"]]
+        team2_pickers = [u for u in usernames if picks_by_user[u].get(gid) == game["team2"]]
+        distribution.append({
+            "game_id": gid,
+            "week": game["week"],
+            "team1": game["team1"],
+            "team2": game["team2"],
+            "team1_pickers": team1_pickers,
+            "team2_pickers": team2_pickers,
+        })
+    return distribution

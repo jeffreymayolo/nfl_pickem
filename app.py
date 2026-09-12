@@ -1,5 +1,4 @@
 import os
-from datetime import datetime, timezone
 
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_login import (
@@ -12,8 +11,8 @@ from utils.csv_store import (
     USERS_CSV, USER_FIELDS, GAMES_CSV, GAME_FIELDS, PICK_FIELDS,
     read_csv, write_csv, upsert_csv, picks_csv_path,
 )
-from utils.stats import compute_standings
-from utils.odds import points_for_pick, normalize_pair
+from utils.games import kickoff_passed
+from utils.stats import compute_standings, compute_pick_distribution
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "dev-secret-change-me")
@@ -103,8 +102,10 @@ def logout():
 @login_required
 def standings():
     results, series, game_order = compute_standings()
+    pick_distribution = compute_pick_distribution()
     return render_template(
         "standings.html", results=results, series=series, game_order=game_order,
+        pick_distribution=pick_distribution,
     )
 
 
@@ -113,18 +114,7 @@ def standings():
 def _upcoming_games():
     """Games whose kickoff hasn't passed yet (or has no kickoff time set)."""
     games = read_csv(GAMES_CSV)
-    now = datetime.now(timezone.utc)
-    upcoming = []
-    for g in games:
-        kickoff = g.get("kickoff_time")
-        if kickoff:
-            try:
-                kt = datetime.fromisoformat(kickoff.replace("Z", "+00:00"))
-                if kt <= now:
-                    continue
-            except ValueError:
-                pass
-        upcoming.append(g)
+    upcoming = [g for g in games if not kickoff_passed(g)]
     upcoming.sort(key=lambda g: (g.get("week", ""), g.get("kickoff_time", "")))
     return upcoming
 
@@ -148,16 +138,7 @@ def picks():
         flash("Picks saved.", "success")
         my_picks = {p["game_id"]: p["pick"] for p in read_csv(picks_csv_path(current_user.id))}
 
-    my_points = {}
-    for game in games:
-        prob1, prob2 = float(game["team1_prob"]), float(game["team2_prob"])
-        norm1, norm2 = normalize_pair(prob1, prob2)
-        my_points[game["game_id"]] = {
-            "team1": points_for_pick(norm1),
-            "team2": points_for_pick(norm2),
-        }
-
-    return render_template("picks.html", games=games, my_picks=my_picks, my_points=my_points)
+    return render_template("picks.html", games=games, my_picks=my_picks)
 
 
 # --- Admin -----------------------------------------------------------------

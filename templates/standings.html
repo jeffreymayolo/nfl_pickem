@@ -42,6 +42,22 @@
   </table>
 </div>
 
+<div class="field-divider"></div>
+
+<div class="card">
+  <h2>Who Picked What</h2>
+  <p style="color:#555; font-size:0.9rem; margin-top:-0.5rem;">
+    Shows games that are locked (kickoff has passed) but not yet graded.
+    Picks stay hidden until locked so no one can see others' picks before
+    their own deadline.
+  </p>
+  {% if pick_distribution %}
+  <canvas id="picksChart" height="{{ (pick_distribution | length) * 12 + 6 }}"></canvas>
+  {% else %}
+  <p>No games are currently locked-but-ungraded.</p>
+  {% endif %}
+</div>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 <script>
   const gameOrder = {{ game_order | tojson }};
@@ -74,10 +90,50 @@
       responsive: true,
       interaction: { mode: 'nearest', intersect: false },
       scales: {
-        x: { title: { display: true, text: 'Game' }, ticks: { display: false }},
+        x: { title: { display: true, text: 'Game' } },
         y: { title: { display: true, text: 'Cumulative Points' } },
       },
     },
   });
+
+  const pickDist = {{ pick_distribution | tojson }};
+  if (pickDist.length > 0) {
+    const pdLabels = pickDist.map(g => `${g.team1} vs ${g.team2}`);
+    const team1Counts = pickDist.map(g => g.team1_pickers.length);
+    const team2Counts = pickDist.map(g => g.team2_pickers.length);
+
+    new Chart(document.getElementById('picksChart'), {
+      type: 'bar',
+      data: {
+        labels: pdLabels,
+        datasets: [
+          { label: 'Team 1 picks', data: team1Counts, backgroundColor: '#E8A93B' },
+          { label: 'Team 2 picks', data: team2Counts, backgroundColor: '#1B4332' },
+        ],
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true,
+        scales: {
+          x: { stacked: true, beginAtZero: true, ticks: { stepSize: 1, precision: 0 } },
+          y: { stacked: true },
+        },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: function (context) {
+                const game = pickDist[context.dataIndex];
+                const isTeam1 = context.datasetIndex === 0;
+                const team = isTeam1 ? game.team1 : game.team2;
+                const names = isTeam1 ? game.team1_pickers : game.team2_pickers;
+                return `${team}: ${names.length ? names.join(', ') : 'no picks yet'}`;
+              },
+            },
+          },
+        },
+      },
+    });
+  }
 </script>
 {% endblock %}
