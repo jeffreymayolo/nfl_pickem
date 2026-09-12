@@ -6,3 +6,4 @@ data_backup/*
 .secret_key.txt
 .venv/
 utils/__pycache__/*
+logs/*

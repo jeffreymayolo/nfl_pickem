@@ -16,17 +16,102 @@ A small Flask app for running your family's weekly NFL pick-em league.
   weeks, zero-win weeks, and season net if you'd bet $20 on every pick — plus a
   cumulative points line chart. Ties are broken by percent correct.
 
+
 ## Local setup
 
+### Setting up the Python environment
 ```bash
-python3 -m venv venv
-source venv/bin/activate
+python3 -m venv .venv
+source .venv/bin/activate
 pip install -r requirements.txt
-python app.py
 ```
 
-Visit http://localhost:8000 — register the first account (that becomes the
-commissioner), then add a game from the Admin page to try it out.
+### Setting up cloudflared
+Install cloudfare
+```bash
+brew install cloudflared
+```
+
+Login to cloudflare and approve access to your domain. This will open a browser
+```bash
+cloudflared tunnel login
+```
+Generate a named tunnel and credential keys
+```bash
+cloudflared tunnel create pickem
+```
+Create a DNS record so that hostname points at your tunnel instead of a normal IP address
+```bash
+cloudflared tunnel route dns pickem pickem.jeffreymayolo.com
+```
+
+Copy the config template and fill in its placeholders (tunnel ID from the
+`create` command above, your macOS username, and the hostname):
+```bash
+cp config.yml ~/.cloudflared/config.yml
+```
+Then edit `~/.cloudflared/config.yml` directly — the `service:` line inside
+it must point at the same port gunicorn will bind to below (`8000`).
+
+Install cloudflared as a persistent background service, so the tunnel
+survives reboots and doesn't depend on a terminal staying open:
+```bash
+sudo cloudflared service install
+```
+
+Once it's installed it can be started and stopped via 
+```bash
+sudo launchctl stop com.cloudflare.cloudflared
+sudo launchctl start com.cloudflare.cloudflared
+```
+
+running in the foreground
+```bash
+cloudflared tunnel run pickem
+```
+
+### Setting up gunicorn (already installed via requirements.txt)
+
+Generate a secret key — this signs login session cookies, used by
+Flask/gunicorn, not by cloudflared:
+```bash
+python3 -c "import secrets; print(secrets.token_hex(32))"
+```
+
+Test-run gunicorn locally to confirm the key and app both work:
+```bash
+export SECRET_KEY=<paste the value>
+gunicorn --bind 127.0.0.1:8000 app:app
+```
+Visit `pickem.jeffreymayolo.com` — if cloudflared is already running, this
+confirms the whole chain works end to end. Stop this with Ctrl+C once confirmed.
+
+Set up the persistent service:
+```bash
+mkdir -p logs
+cp deploy/macos/com.mayolopickem.web.plist ~/Library/LaunchAgents/
+```
+Fill in the placeholders inside
+`~/Library/LaunchAgents/com.mayolopickem.web.plist`:
+- `{{PROJECT_PATH}}`
+- `{{VENV_PATH}}`
+- `{{SECRET_KEY}}`
+
+Then load it:
+```bash
+launchctl load ~/Library/LaunchAgents/com.mayolopickem.web.plist
+```
+
+### Shutting everything down
+
+```bash
+launchctl unload ~/Library/LaunchAgents/com.mayolopickem.web.plist
+sudo launchctl unload /Library/LaunchDaemons/com.cloudflare.cloudflared.plist
+
+launchctl list | grep mayolopickem
+sudo launchctl list | grep cloudflare
+```
+Both `list` commands returning nothing confirms everything is stopped.
 
 
 ## Data files
