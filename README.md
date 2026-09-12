@@ -88,3 +88,23 @@ submissions right before kickoff can't corrupt a file.
   loss costs 20. This can rank differently than the points column, since
   points reward beating the odds while the dollar column pays out more for
   underdog wins regardless of how big the upset was.
+
+  ## starting
+  Start the service
+  ```
+  python3 app.py
+  ```
+
+  Connect to Cloudflare tunnel
+  ```
+  cloudflared tunnel run pickem
+  ```
+
+  ## TODO
+  - Switch hosting to gunicorn.
+  - Make the points automatically calculate after each game and show in the plot.
+  - Once a game starts, display a pie chart for who chose what team.
+  - Make it nore viewable on phone since that is the primary source for viewing
+  - Get rid of $20/game.
+
+
