@@ -1,3 +1,4 @@
 cert.pem
 data/*
 config.yml
+data_backup/*
