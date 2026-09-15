@@ -11,3 +11,4 @@ data_backup/*
 utils/__pycache__/*
 logs/*
 .DS_Store
+__pycache__/
