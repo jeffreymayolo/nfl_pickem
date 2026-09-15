@@ -87,6 +87,8 @@
   const series = {{ series | tojson }};
   const colors = ["#E8A93B", "#1B4332", "#6B3F2A", "#3C7A5A", "#B4453B", "#4A6FA5", "#8E6C88", "#C97B3D"];
 
+  const chartLabels = ['', ...gameOrder];
+
   const datasets = Object.keys(series).map((username, i) => {
     const byGame = {};
     series[username].forEach(pt => { byGame[pt.game_id] = pt.cumulative_points; });
@@ -97,7 +99,7 @@
     });
     return {
       label: username,
-      data: data,
+      data: [0, ...data],
       borderColor: colors[i % colors.length],
       backgroundColor: colors[i % colors.length],
       tension: 0.2,
@@ -108,7 +110,7 @@
 
   const pointsChart = new Chart(document.getElementById('pointsChart'), {
     type: 'line',
-    data: { labels: gameOrder, datasets: datasets },
+    data: { labels: chartLabels, datasets: datasets },
     options: {
       responsive: true,
       maintainAspectRatio: false,
@@ -119,7 +121,7 @@
           title: { display: true, text: 'Game' },
           ticks: {
             callback: function (value, index) {
-              return index;
+              return index === 0 ? '' : index;
             },
           },
         },
