@@ -21,10 +21,10 @@ from utils.odds import normalize_pair, points_for_pick, payout_on_20
 
 
 def _graded_games():
-    """Games that have a winner recorded, in game_id order."""
+    """Games that have a winner recorded, in kickoff-time order."""
     games = read_csv(GAMES_CSV)
     graded = [g for g in games if g.get("winner")]
-    graded.sort(key=lambda g: g["game_id"])
+    graded.sort(key=lambda g: g.get("kickoff_time", ""))
     return graded
 
 # def create_standings_plot(series):
