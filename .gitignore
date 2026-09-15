@@ -1,0 +1,14 @@
+cert.pem
+data/games.csv
+data/users.csv
+data/picks/*
+data/.locks/*
+config.yml
+data_backup/*
+.api_key.txt
+.secret_key.txt
+.venv/
+utils/__pycache__/*
+logs/*
+.DS_Store
+__pycache__/

@@ -161,4 +161,114 @@ tr:first-child td { font-weight: 600; }
 .team-choice.selected { border-color: var(--gold); background: #fdf3e2; }
 .team-choice .odds { display: block; font-size: 0.8rem; color: #6a6a6a; margin-top: 0.15rem; }
 
-#chart-wrap { background: #fff; border: 1px solid var(--hash); border-radius: 6px; padding: 1rem; }
+#chart-wrap { position: relative; height: 420px; }
+.chart-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 0.9rem;
+  justify-content: center;
+  margin-top: 0.8rem;
+  padding-top: 0.8rem;
+  border-top: 1px solid var(--hash);
+}
+.legend-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.82rem;
+  cursor: pointer;
+  user-select: none;
+  padding: 0.15rem 0.1rem;
+}
+.legend-chip-off { opacity: 0.4; text-decoration: line-through; }
+.legend-dot { width: 0.7rem; height: 0.7rem; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+
+
+/* Mobile: collapse the standings table into stacked cards instead of a
+   wide table that requires horizontal scrolling to read. */
+@media (max-width: 700px) {
+  #chart-wrap { height: 240px; }
+
+  table.standings thead { display: none; }
+  table.standings, table.standings tbody { display: block; width: 100%; }
+  table.standings tr {
+    display: flex;
+    flex-wrap: wrap;
+    border: 1px solid var(--hash);
+    border-radius: 6px;
+    padding: 0.7rem 0.9rem 0.5rem;
+    margin-bottom: 0.7rem;
+  }
+  table.standings td { border-bottom: none; padding: 0; font-size: 0.88rem; }
+  table.standings td.card-header {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: 1.05rem;
+    font-weight: 600;
+    padding-bottom: 0.6rem;
+    margin-bottom: 0.4rem;
+    border-bottom: 1px solid var(--hash);
+  }
+  table.standings td.stat-cell {
+    flex: 1 1 50%;
+    display: flex;
+    justify-content: space-between;
+    padding: 0.3rem 0.4rem 0.3rem 0;
+  }
+  table.standings td.stat-cell::before {
+    content: attr(data-label);
+    font-weight: 600;
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--turf-dark);
+  }
+}
+
+.pick-game { margin-bottom: 0.5rem; }
+.pick-game-title {
+  font-weight: 600;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--turf-dark);
+  text-align: center;
+  margin-bottom: 0.7rem;
+}
+.pick-matchup {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 1.4rem;
+}
+.pick-team { flex: 0 1 150px; text-align: center; }
+.pick-circle {
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  margin: 0 auto 0.6rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.4rem;
+  color: #fff;
+  font-family: 'Teko', sans-serif;
+  font-size: 1.15rem;
+  font-weight: 600;
+  line-height: 1.05;
+  text-align: center;
+}
+.pick-circle-a { background: var(--turf); }
+.pick-circle-b { background: var(--leather); }
+.pick-vs {
+  align-self: center;
+  font-family: 'Teko', sans-serif;
+  font-size: 1.2rem;
+  color: #999;
+  padding-top: 2.1rem;
+}
+.pick-names { list-style: none; margin: 0; padding: 0; font-size: 0.85rem; }
+.pick-names li { padding: 0.1rem 0; }
+.pick-names.empty { color: #999; font-style: italic; }

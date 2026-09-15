@@ -16,55 +16,103 @@ A small Flask app for running your family's weekly NFL pick-em league.
   weeks, zero-win weeks, and season net if you'd bet $20 on every pick — plus a
   cumulative points line chart. Ties are broken by percent correct.
 
+
 ## Local setup
 
+### Setting up the Python environment
 ```bash
-python3 -m venv venv
-source venv/bin/activate
+python3 -m venv .venv
+source .venv/bin/activate
 pip install -r requirements.txt
-python app.py
 ```
 
-Visit http://localhost:5001 — register the first account (that becomes the
-commissioner), then add a game from the Admin page to try it out.
+### Setting up cloudflared
+Install cloudfare
+```bash
+brew install cloudflared
+```
 
-## Pulling odds automatically
+Login to cloudflare and approve access to your domain. This will open a browser
+```bash
+cloudflared tunnel login
+```
+Generate a named tunnel and credential keys
+```bash
+cloudflared tunnel create pickem
+```
+Create a DNS record so that hostname points at your tunnel instead of a normal IP address
+```bash
+cloudflared tunnel route dns pickem pickem.jeffreymayolo.com
+```
 
-1. Get a free API key at https://the-odds-api.com (free tier = 500 requests/month;
-   one pull per week costs 1 request).
-2. Set it as an environment variable: `export ODDS_API_KEY=your_key_here`
-3. Run the weekly pull, naming games as `Away@Home`:
+Copy the config template and fill in its placeholders (tunnel ID from the
+`create` command above, your macOS username, and the hostname):
+```bash
+cp config.yml ~/.cloudflared/config.yml
+```
+Then edit `~/.cloudflared/config.yml` directly — the `service:` line inside
+it must point at the same port gunicorn will bind to below (`8000`).
+
+Install cloudflared as a persistent background service, so the tunnel
+survives reboots and doesn't depend on a terminal staying open:
+```bash
+sudo cloudflared service install
+```
+
+Once it's installed it can be started and stopped via 
+```bash
+sudo launchctl stop com.cloudflare.cloudflared
+sudo launchctl start com.cloudflare.cloudflared
+```
+
+running in the foreground
+```bash
+cloudflared tunnel run pickem
+```
+
+### Setting up gunicorn (already installed via requirements.txt)
+
+Generate a secret key — this signs login session cookies, used by
+Flask/gunicorn, not by cloudflared:
+```bash
+python3 -c "import secrets; print(secrets.token_hex(32))"
+```
+
+Test-run gunicorn locally to confirm the key and app both work:
+```bash
+export SECRET_KEY=<paste the value>
+gunicorn --bind 127.0.0.1:8000 app:app
+```
+Visit `pickem.jeffreymayolo.com` — if cloudflared is already running, this
+confirms the whole chain works end to end. Stop this with Ctrl+C once confirmed.
+
+Set up the persistent service:
+```bash
+mkdir -p logs
+cp deploy/macos/com.mayolopickem.web.plist ~/Library/LaunchAgents/
+```
+Fill in the placeholders inside
+`~/Library/LaunchAgents/com.mayolopickem.web.plist`:
+- `{{PROJECT_PATH}}`
+- `{{VENV_PATH}}`
+- `{{SECRET_KEY}}`
+
+Then load it:
+```bash
+launchctl load ~/Library/LaunchAgents/com.mayolopickem.web.plist
+```
+
+### Shutting everything down
 
 ```bash
-python scripts/fetch_odds.py --week 5 --games "Chiefs@Bills" "Cowboys@Eagles"
+launchctl unload ~/Library/LaunchAgents/com.mayolopickem.web.plist
+sudo launchctl unload /Library/LaunchDaemons/com.cloudflare.cloudflared.plist
+
+launchctl list | grep mayolopickem
+sudo launchctl list | grep cloudflare
 ```
+Both `list` commands returning nothing confirms everything is stopped.
 
-This writes/updates rows in `data/games.csv` with the averaged moneyline odds
-across books and the resulting implied win probabilities. Team-name matching
-is a loose substring match (e.g. "Chiefs" matches "Kansas City Chiefs"), so
-short nicknames work fine.
-
-## Deploying to Render
-
-`render.yaml` is included and defines two services:
-
-1. **mayolo-pickem** — the web app itself (free plan, gunicorn).
-2. **fetch-odds-tuesday** — an optional cron job that runs the odds pull every
-   Tuesday at 9am ET. You'll need to edit the `--week`/`--games` args in
-   `render.yaml` each week (or point it at a small wrapper script that reads
-   the week's games from a file the commissioner maintains).
-
-Steps:
-1. Push this project to a GitHub repo.
-2. In Render, choose "New > Blueprint" and point it at the repo — it will
-   read `render.yaml` and set up both services.
-3. Set the `ODDS_API_KEY` environment variable on both services in the Render
-   dashboard (it's marked `sync: false` so it's not stored in the repo).
-4. Note: Render's **free** plan does not support persistent disks, so
-   `data/` will reset on redeploy on the free tier. If you want the CSVs to
-   survive redeploys, upgrade the web service to a paid plan (enables the
-   `disk:` block already in `render.yaml`), or swap in Render's free
-   PostgreSQL/S3-compatible storage down the line.
 
 ## Data files
 
@@ -83,8 +131,93 @@ submissions right before kickoff can't corrupt a file.
   points for a correct pick = `100 * (1 - normalized_probability)`. A big
   favorite is worth few points; a big underdog is worth a lot.
 
-- **20/game net**: uses the *actual* American odds (not normalized) of the
-  team you picked — a win pays out what a real 20 bet would at those odds; a
-  loss costs 20. This can rank differently than the points column, since
-  points reward beating the odds while the dollar column pays out more for
-  underdog wins regardless of how big the upset was.
+
+## starting
+Start the service
+```
+python3 app.py
+```
+
+Connect to Cloudflare tunnel
+```
+cloudflared tunnel run pickem
+```
+
+## Pulling odds automatically
+
+1. Get a free API key at https://the-odds-api.com (free tier = 500 requests/month;
+   one pull per week costs 1 request).
+2. Set it as an environment variable: `export ODDS_API_KEY=your_key_here`
+3. Run the weekly pull, naming games as `Away@Home`:
+
+```bash
+python scripts/fetch_odds.py --week 5 --games "Chiefs@Bills" "Cowboys@Eagles"
+```
+
+## TODO
+  - Switch hosting to gunicorn.
+  - Make the points automatically calculate after each game and show in the plot.
+  - Once a game starts, display a pie chart for who chose what team.
+  - Make it nore viewable on phone since that is the primary source for viewing
+  - Get rid of $20/game.
+  - Get it running on Nina's laptop
+
+## Self-hosting on your own machine (Cloudflare Tunnel)
+
+If you'd rather run this on a spare laptop than pay for hosting, Cloudflare
+Tunnel exposes it to the internet with **no port forwarding and no open
+ports on your router** — a small daemon (`cloudflared`) runs locally and
+makes an outbound-only connection to Cloudflare's edge; visitors to your
+domain get routed back through that tunnel to your machine.
+
+You'll need a domain name pointed at Cloudflare's nameservers (a "named
+tunnel" gives you a stable URL like `pickem.yourdomain.com` that survives
+restarts, unlike the free ephemeral "quick tunnel" option).
+
+**1. Run the app itself in production mode**, bound to localhost only:
+```bash
+gunicorn --bind 127.0.0.1:8000 app:app
+```
+Set a real `SECRET_KEY` env var too — the app falls back to an insecure
+default (`dev-secret-change-me`) if it's not set.
+
+**2. Set up cloudflared** (macOS: `brew install cloudflared`):
+```bash
+cloudflared tunnel login                              # authorize your domain
+cloudflared tunnel create pickem                       # creates a named tunnel
+cloudflared tunnel route dns pickem pickem.yourdomain.com
+```
+Then create `~/.cloudflared/config.yml`:
+```yaml
+tunnel: <TUNNEL_ID>
+credentials-file: /Users/yourname/.cloudflared/<TUNNEL_ID>.json
+ingress:
+  - hostname: pickem.yourdomain.com
+    service: http://localhost:8000
+  - service: http_status:404
+```
+Install it as a background service so it survives reboots:
+```bash
+sudo cloudflared service install
+```
+
+**3. Keep the app itself running as a background service too** — see
+`deploy/macos/com.mayolopickem.web.plist`, a launchd template that runs
+gunicorn via `launchctl` and restarts it automatically if it crashes or the
+machine reboots. Fill in the placeholders in the file, then:
+```bash
+cp deploy/macos/com.mayolopickem.web.plist ~/Library/LaunchAgents/
+launchctl load ~/Library/LaunchAgents/com.mayolopickem.web.plist
+```
+
+**4. Disable sleep** on the laptop (System Settings → Battery) while it's
+plugged in — if it sleeps, both the tunnel and the app go down until
+someone wakes the machine.
+
+## TODO
+- Set up on Nina's laptop
+- Get graphics for every team and put an image for them
+- Make picks lock and display who picked what after the first game of the week (Thursday night) starts.
+- Include ties in the standings calculations
+- Add in automatic odds pull scripts into a .txt file
+- Automatically pull final scores on at midnight on Thursday, Sunday, and Monday.
