@@ -1,5 +1,8 @@
 cert.pem
-data/*
+data/games.csv
+data/users.csv
+data/picks/*
+data/.locks/*
 config.yml
 data_backup/*
 .api_key.txt
@@ -7,3 +10,4 @@ data_backup/*
 .venv/
 utils/__pycache__/*
 logs/*
+.DS_Store
