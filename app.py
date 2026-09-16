@@ -12,7 +12,7 @@ from utils.csv_store import (
     read_csv, write_csv, upsert_csv, picks_csv_path,
 )
 from utils.games import kickoff_passed
-from utils.stats import compute_standings, compute_pick_distribution
+from utils.stats import compute_standings, compute_pick_distribution, normalize_pair
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "dev-secret-change-me")
@@ -183,6 +183,13 @@ def admin():
                 "kickoff_time": request.form.get("kickoff_time", "").strip(),
                 "winner": "",
             }
+
+            #normalize the odds
+            prob1, prob2 = float(new_row["team1_prob"]), float(new_row["team2_prob"])
+            norm1, norm2 = normalize_pair(prob1, prob2)
+            new_row["team1_prob"] = str(norm1)
+            new_row["team2_prob"] = str(norm2)
+            
             games.append(new_row)
             write_csv(GAMES_CSV, GAME_FIELDS, games)
             flash(f"Added game {new_row['game_id']}.", "success")

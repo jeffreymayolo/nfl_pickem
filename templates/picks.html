@@ -13,7 +13,7 @@
         {{ 'checked' if my_picks.get(game.game_id) == game.team1 }}
         onclick="this.closest('.matchup').querySelectorAll('.team-choice').forEach(el=>el.classList.remove('selected')); this.closest('.team-choice').classList.add('selected');">
       {{ game.team1 }}
-      <span class="odds">{{ game.team1_odds }}</span>
+      <span class="odds">{{ game.team1_prob }}</span>
     </label>
     <span style="color:#999;">vs</span>
     <label class="team-choice {{ 'selected' if my_picks.get(game.game_id) == game.team2 }}">
@@ -21,7 +21,7 @@
         {{ 'checked' if my_picks.get(game.game_id) == game.team2 }}
         onclick="this.closest('.matchup').querySelectorAll('.team-choice').forEach(el=>el.classList.remove('selected')); this.closest('.team-choice').classList.add('selected');">
       {{ game.team2 }}
-      <span class="odds">{{ game.team2_odds }}</span>
+      <span class="odds">{{ game.team2_prob }}</span>
     </label>
   </div>
   {% else %}

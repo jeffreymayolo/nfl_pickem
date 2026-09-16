@@ -12,3 +12,4 @@ utils/__pycache__/*
 logs/*
 .DS_Store
 __pycache__/
+logs/*
