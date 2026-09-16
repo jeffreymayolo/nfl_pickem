@@ -21,7 +21,7 @@ import requests
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from utils.csv_store import GAMES_CSV, GAME_FIELDS, read_csv, write_csv
-from utils.odds import implied_probability
+from utils.odds import implied_probability, normalize_pair
 
 ODDS_API_URL = "https://api.the-odds-api.com/v4/sports/americanfootball_nfl/odds"
 
@@ -72,15 +72,17 @@ def extract_moneylines(game: dict, team1: str, team2: str):
 
 
 def build_game_row(game_id: str, week: str, team1: str, team2: str, odds1: int, odds2: int, kickoff: str):
+    prob1, prob2 = implied_probability(odds1), implied_probability(odds2)
+    norm1, norm2 = normalize_pair(prob1, prob2)
     return {
         "game_id": game_id,
         "week": week,
         "team1": team1,
         "team1_odds": odds1,
-        "team1_prob": round(implied_probability(odds1), 4),
+        "team1_prob": round(norm1, 2),
         "team2": team2,
         "team2_odds": odds2,
-        "team2_prob": round(implied_probability(odds2), 4),
+        "team2_prob": round(norm2, 2),
         "kickoff_time": kickoff,
         "winner": "",
     }
