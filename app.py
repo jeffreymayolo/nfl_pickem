@@ -11,7 +11,7 @@ from utils.csv_store import (
     USERS_CSV, USER_FIELDS, GAMES_CSV, GAME_FIELDS, PICK_FIELDS,
     read_csv, write_csv, upsert_csv, picks_csv_path,
 )
-from utils.games import kickoff_passed
+from utils.games import week_is_locked
 from utils.stats import compute_standings, compute_pick_distribution, normalize_pair
 
 app = Flask(__name__)
@@ -112,9 +112,10 @@ def standings():
 # --- Picks -----------------------------------------------------------------
 
 def _upcoming_games():
-    """Games whose kickoff hasn't passed yet (or has no kickoff time set)."""
+    """Games available for picking. Once a week's first game kicks off,
+    the entire week locks at once - not just each game individually."""
     games = read_csv(GAMES_CSV)
-    upcoming = [g for g in games if not kickoff_passed(g)]
+    upcoming = [g for g in games if not week_is_locked(g.get("week", ""), games)]
     upcoming.sort(key=lambda g: (g.get("week", ""), g.get("kickoff_time", "")))
     return upcoming
 

@@ -16,7 +16,7 @@ from collections import defaultdict
 # import matplotlib.pyplot as plt
 
 from utils.csv_store import GAMES_CSV, USERS_CSV, read_csv, picks_csv_path
-from utils.games import kickoff_passed
+from utils.games import week_is_locked
 from utils.odds import normalize_pair, points_for_pick, payout_on_20
 
 
@@ -26,19 +26,6 @@ def _graded_games():
     graded = [g for g in games if g.get("winner")]
     graded.sort(key=lambda g: g.get("kickoff_time", ""))
     return graded
-
-# def create_standings_plot(series):
-#     """
-#     Function to create a standgins plot using seaborn and matplotlib
-#     """
-#     unsernames = list(series.keys())
-#     user_scores = {username: [entry["cumulative_points"] for entry in series[username]] for username in unsernames}
-#     sns.lineplot(data=pd.DataFrame(user_scores))
-#     sns.set_theme(style="whitegrid")
-#     plt.xlabel("Game ID")
-#     plt.ylabel("Total Points")
-#     plt.title("Total Points by Game ID")
-#     plt.savefig("static/standings_plot.png")
 
 
 def compute_standings():
@@ -123,21 +110,22 @@ def compute_standings():
 
 def compute_pick_distribution():
     """
-    For each "current" game — kickoff has passed (so picks are locked and
-    safe to reveal without letting anyone copy a pick before their own
-    deadline) but no winner has been recorded yet — returns who picked
-    which team. Used for the "who picked what" chart on the standings page.
+    Once a week's first game kicks off, the whole week locks at once -
+    every game in that week becomes safe to reveal, not just the individual
+    games whose own kickoff has passed. Excludes games already graded (those
+    show up in the standings table itself). Used for the "who picked what"
+    section on the standings page.
     """
     games = read_csv(GAMES_CSV)
-    current = [g for g in games if kickoff_passed(g) and not g.get("winner")]
+    current = [g for g in games if week_is_locked(g.get("week", ""), games) and not g.get("winner")]
     current.sort(key=lambda g: (g.get("week", ""), g.get("kickoff_time", "")))
-
+ 
     usernames = [u["username"] for u in read_csv(USERS_CSV)]
     picks_by_user = {
         u: {p["game_id"]: p["pick"] for p in read_csv(picks_csv_path(u))}
         for u in usernames
     }
-
+ 
     distribution = []
     for game in current:
         gid = game["game_id"]
@@ -152,4 +140,3 @@ def compute_pick_distribution():
             "team2_pickers": team2_pickers,
         })
     return distribution
-
