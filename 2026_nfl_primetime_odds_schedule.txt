@@ -1,0 +1,61 @@
+# 2026 NFL Primetime Betting Odds Schedule
+# Execute each command at 02:00 AM ET on the Tuesday listed.
+# Cron format: minute hour day-of-month month day-of-week command
+#
+# NOTE: Weeks 16-18 have scheduling flexibility/TBD games. Update those
+# lines once the NFL announces the remaining matchups.
+#
+# These commands include the scheduled Thursday/Friday/Saturday/Sunday/Monday
+# nationally televised primetime games. Week 12 includes the Wednesday Netflix
+# game because it is an evening national broadcast.
+
+# Week 3 - Tuesday, September 22, 2026
+0 2 22 9 * python3 scripts/fetch_odds.py --week 3 --games "Falcons@Packers" "Rams@Broncos" "Eagles@Bears"
+
+# Week 4 - Tuesday, September 29, 2026
+0 2 29 9 * python3 scripts/fetch_odds.py --week 4 --games "Steelers@Browns" "Lions@Panthers" "Falcons@Saints"
+
+# Week 5 - Tuesday, October 6, 2026
+0 2 6 10 * python3 scripts/fetch_odds.py --week 5 --games "Buccaneers@Cowboys" "Ravens@Falcons" "Bills@Rams"
+
+# Week 6 - Tuesday, October 13, 2026
+0 2 13 10 * python3 scripts/fetch_odds.py --week 6 --games "Seahawks@Broncos" "Cowboys@Packers" "Commanders@49ers"
+
+# Week 7 - Tuesday, October 20, 2026
+0 2 20 10 * python3 scripts/fetch_odds.py --week 7 --games "Patriots@Bears" "Chiefs@Seahawks" "Cowboys@Eagles"
+
+# Week 8 - Tuesday, October 27, 2026
+0 2 27 10 * python3 scripts/fetch_odds.py --week 8 --games "Panthers@Packers" "Eagles@Commanders" "Bears@Seahawks"
+
+# Week 9 - Tuesday, November 3, 2026
+0 2 3 11 * python3 scripts/fetch_odds.py --week 9 --games "Jaguars@Ravens" "Buccaneers@Bears" "Bills@Vikings"
+
+# Week 10 - Tuesday, November 10, 2026
+0 2 10 11 * python3 scripts/fetch_odds.py --week 10 --games "Commanders@Giants" "Steelers@Bengals" "Chargers@Ravens"
+
+# Week 11 - Tuesday, November 17, 2026
+0 2 17 11 * python3 scripts/fetch_odds.py --week 11 --games "Colts@Texans" "Vikings@49ers" "Bengals@Commanders"
+
+# Week 12 - Tuesday, November 24, 2026
+0 2 24 11 * python3 scripts/fetch_odds.py --week 12 --games "Packers@Rams" "Chiefs@Bills" "Patriots@Chargers" "Panthers@Buccaneers"
+
+# Week 13 - Tuesday, December 1, 2026
+0 2 1 12 * python3 scripts/fetch_odds.py --week 13 --games "Chiefs@Rams" "Texans@Steelers" "Cowboys@Seahawks"
+
+# Week 14 - Tuesday, December 8, 2026
+0 2 8 12 * python3 scripts/fetch_odds.py --week 14 --games "Vikings@Patriots" "Bills@Packers" "Steelers@Jaguars"
+
+# Week 15 - Tuesday, December 15, 2026
+0 2 15 12 * python3 scripts/fetch_odds.py --week 15 --games "49ers@Chargers" "Lions@Vikings" "Patriots@Chiefs"
+
+# Week 16 - Tuesday, December 22, 2026
+# Saturday night matchup is TBD/flexible as of September 19, 2026.
+0 2 22 12 * python3 scripts/fetch_odds.py --week 16 --games "Texans@Eagles" "Jaguars@Cowboys" "Giants@Lions"
+
+# Week 17 - Tuesday, December 29, 2026
+0 2 29 12 * python3 scripts/fetch_odds.py --week 17 --games "Ravens@Bengals" "Eagles@49ers" "Texans@Packers"
+
+# Week 18 - Tuesday, January 5, 2027
+# Primetime matchups are TBD and will be assigned after Week 17.
+# 0 2 5 1 * python3 scripts/fetch_odds.py --week 18 --games "TBD"
+
