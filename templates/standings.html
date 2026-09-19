@@ -60,14 +60,20 @@
       <div class="pick-game-title">Week {{ g.week }}</div>
       <div class="pick-matchup">
         <div class="pick-team">
-          <div class="pick-circle pick-circle-a">{{ g.team1 }}</div>
+          <div class="pick-circle pick-circle-a">
+            <img class="team-logo-circle" src="{{ url_for('static', filename='logos/' ~ g.team1 ~ '.svg') }}" alt="" onerror="this.style.display='none'">
+          </div>
+          <div class="pick-team-name">{{ g.team1 }}</div>
           <ul class="pick-names {{ 'empty' if not g.team1_pickers }}">
             {% for name in g.team1_pickers %}<li>{{ name }}</li>{% else %}<li>No picks yet</li>{% endfor %}
           </ul>
         </div>
         <div class="pick-vs">vs</div>
         <div class="pick-team">
-          <div class="pick-circle pick-circle-b">{{ g.team2 }}</div>
+          <div class="pick-circle pick-circle-b">
+            <img class="team-logo-circle" src="{{ url_for('static', filename='logos/' ~ g.team2 ~ '.svg') }}" alt="" onerror="this.style.display='none'">
+          </div>
+          <div class="pick-team-name">{{ g.team2 }}</div>
           <ul class="pick-names {{ 'empty' if not g.team2_pickers }}">
             {% for name in g.team2_pickers %}<li>{{ name }}</li>{% else %}<li>No picks yet</li>{% endfor %}
           </ul>
