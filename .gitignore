@@ -14,3 +14,4 @@ logs/*
 __pycache__/
 logs/*
 utils/__pycache__/*
+2026_nfl_primetime_odds_schedule.txt
