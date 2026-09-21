@@ -272,3 +272,11 @@ tr:first-child td { font-weight: 600; }
 .pick-names { list-style: none; margin: 0; padding: 0; font-size: 0.85rem; }
 .pick-names li { padding: 0.1rem 0; }
 .pick-names.empty { color: #999; font-style: italic; }
+
+.team-logo { width: 44px; height: 44px; object-fit: contain; display: block; margin: 0 auto 0.4rem; }
+
+/* Real team logos carry their own colors, so swap the solid
+   turf/leather fill for a neutral backdrop that won't clash */
+.pick-circle { background: #fff; border: 2px solid var(--hash); }
+.team-logo-circle { width: 60%; height: 60%; object-fit: contain; }
+.pick-team-name { font-size: 0.8rem; font-weight: 600; margin-bottom: 0.4rem; color: var(--turf-dark); }

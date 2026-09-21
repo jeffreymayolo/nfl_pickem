@@ -12,16 +12,18 @@
       <input type="radio" name="pick_{{ game.game_id }}" value="{{ game.team1 }}"
         {{ 'checked' if my_picks.get(game.game_id) == game.team1 }}
         onclick="this.closest('.matchup').querySelectorAll('.team-choice').forEach(el=>el.classList.remove('selected')); this.closest('.team-choice').classList.add('selected');">
-      {{ game.team1 }}
-      <span class="odds">{{ game.team1_prob }}</span>
+      <img class="team-logo" src="{{ url_for('static', filename='logos/' ~ game.team1 ~ '.svg') }}" alt="" onerror="this.style.display='none'">
+      <div>{{ game.team1 }}</div>
+      <span class="odds">{{ game.team1_odds }}</span>
     </label>
     <span style="color:#999;">vs</span>
     <label class="team-choice {{ 'selected' if my_picks.get(game.game_id) == game.team2 }}">
       <input type="radio" name="pick_{{ game.game_id }}" value="{{ game.team2 }}"
         {{ 'checked' if my_picks.get(game.game_id) == game.team2 }}
         onclick="this.closest('.matchup').querySelectorAll('.team-choice').forEach(el=>el.classList.remove('selected')); this.closest('.team-choice').classList.add('selected');">
-      {{ game.team2 }}
-      <span class="odds">{{ game.team2_prob }}</span>
+      <img class="team-logo" src="{{ url_for('static', filename='logos/' ~ game.team2 ~ '.svg') }}" alt="" onerror="this.style.display='none'">
+      <div>{{ game.team2 }}</div>
+      <span class="odds">{{ game.team2_odds }}</span>
     </label>
   </div>
   {% else %}

@@ -214,10 +214,15 @@ launchctl load ~/Library/LaunchAgents/com.mayolopickem.web.plist
 plugged in — if it sleeps, both the tunnel and the app go down until
 someone wakes the machine.
 
+## Adding automatic pull to cron job
+```
+crontab /path/to/2026_nfl_primetime_odds_schedule.txt
+```
+verify with the following
+```
+crontab -l
+```
+
 ## TODO
-- Set up on Nina's laptop
-- Get graphics for every team and put an image for them
-- Make picks lock and display who picked what after the first game of the week (Thursday night) starts.
 - Include ties in the standings calculations
-- Add in automatic odds pull scripts into a .txt file
 - Automatically pull final scores on at midnight on Thursday, Sunday, and Monday.
