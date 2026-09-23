@@ -14,7 +14,7 @@
         onclick="this.closest('.matchup').querySelectorAll('.team-choice').forEach(el=>el.classList.remove('selected')); this.closest('.team-choice').classList.add('selected');">
       <img class="team-logo" src="{{ url_for('static', filename='logos/' ~ game.team1 ~ '.svg') }}" alt="" onerror="this.style.display='none'">
       <div>{{ game.team1 }}</div>
-      <span class="odds">{{ game.team1_odds }}</span>
+      <span class="odds">{{ game.team2_prob * 100 | round(1) }}</span>
     </label>
     <span style="color:#999;">vs</span>
     <label class="team-choice {{ 'selected' if my_picks.get(game.game_id) == game.team2 }}">
@@ -23,7 +23,7 @@
         onclick="this.closest('.matchup').querySelectorAll('.team-choice').forEach(el=>el.classList.remove('selected')); this.closest('.team-choice').classList.add('selected');">
       <img class="team-logo" src="{{ url_for('static', filename='logos/' ~ game.team2 ~ '.svg') }}" alt="" onerror="this.style.display='none'">
       <div>{{ game.team2 }}</div>
-      <span class="odds">{{ game.team2_odds }}</span>
+      <span class="odds">{{ game.team1_prob * 100 | round(1) }}%</span>
     </label>
   </div>
   {% else %}
